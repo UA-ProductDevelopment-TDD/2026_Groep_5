@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bittle LEGO-sorter</title>
+<meta name="theme-color" content="#FFFFFF">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap">
+<style>
+/* Bittle LEGO-sorter · kinderapp (UX/UI-team) — zelfde ontwerp als het Figma-bestand */
+:root{
+  --red:#D01012; --wht:#FFFFFF; --grn:#00852B; --blu:#0A57A6;
+  --navy:#0B2D5B; --ink:#1E2A38; --mut:#667585; --bg:#EEF2F5; --line:#D3DCE3; --yel:#F2B600;
+  --page:#E3E8EC;
+  --f:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--page);font-family:var(--f);color:var(--ink);-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;padding:0}
+button:focus-visible{outline:3px solid var(--blu);outline-offset:3px}
+.phone{max-width:430px;min-height:100%;margin:0 auto;background:#fff;position:relative;overflow:hidden}
+.scr{min-height:100dvh;display:flex;flex-direction:column;gap:16px;padding:calc(env(safe-area-inset-top,0px) + 28px) 20px calc(env(safe-area-inset-bottom,0px) + 24px)}
+.scr[hidden]{display:none}
+.head{display:flex;align-items:center;gap:12px}
+.head h1{margin:0;font-size:22px;font-weight:700;color:var(--navy)}
+.back{width:44px;height:44px;border-radius:22px;background:var(--bg);display:grid;place-items:center;flex:none}
+.grow{flex:1}
+.card{background:var(--bg);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:12px}
+.muted{color:var(--mut)}
+.lbl{font-size:13px;font-weight:700;color:var(--mut);letter-spacing:.03em}
+.big{border-radius:24px;padding:24px;display:flex;align-items:center;gap:20px;color:#fff;min-height:170px;text-align:left;transition:transform .08s}
+.big:active,.btn:active,.preset:active,.kleur:active{transform:scale(.98)}
+.big b{display:block;font-size:30px;font-weight:800}
+.big span{font-size:16px;font-weight:500;opacity:.9}
+.btn{width:100%;height:60px;border-radius:18px;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn.go{background:var(--grn);color:#fff}
+.btn.stop{background:var(--red);color:#fff}
+.btn.sec{background:#fff;color:var(--navy);border:2px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.status{flex-direction:row;align-items:center;padding:18px}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--grn);flex:none}
+.dot.demo{background:var(--yel)} .dot.off{background:var(--red)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.preset{background:#fff;border:3px solid var(--line);border-radius:20px;height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-size:18px;font-weight:700}
+.preset.on{border-color:var(--navy);color:var(--navy)}
+.preset.zelf{background:var(--bg);border-style:dashed;border-color:var(--mut);color:var(--navy)}
+.tower{display:flex;flex-direction:column-reverse;align-items:center;gap:2px}
+.build{height:360px;justify-content:flex-end;align-items:center}
+.kleuren{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kleur{background:#fff;border:2px solid var(--line);border-radius:16px;height:84px;display:grid;place-items:center}
+.steps{display:flex;justify-content:space-between}
+.step{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--mut);width:64px}
+.step i{width:40px;height:40px;border-radius:50%;background:var(--line);display:grid;place-items:center;font-style:normal;font-weight:800;font-size:16px;color:var(--mut);transition:background .2s}
+.step.done i{background:var(--grn);color:#fff}
+.step.now i{background:var(--navy);color:#fff;box-shadow:0 0 0 5px #C9D6E6}
+.step.now{color:var(--navy);font-weight:700}
+.now-card{align-items:center;padding:28px;gap:20px;text-align:center}
+.now-card h2{margin:0;font-size:26px;font-weight:800;color:var(--navy)}
+.vakken{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.vak{height:70px;border-radius:12px;background:#fff;border:2px solid var(--line);display:flex;align-items:flex-end;justify-content:center;gap:6px;padding-bottom:8px}
+.center{align-items:center;text-align:center}
+.stars{font-size:44px;letter-spacing:10px;color:var(--yel);line-height:1}
+.teller{display:flex;justify-content:space-between;align-items:flex-end}
+.teller div{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:30px;font-weight:800}
+.bounce{animation:bounce .6s ease-in-out infinite alternate}
+@keyframes bounce{to{transform:translateY(-8px)}}
+.overlay{position:fixed;inset:0;background:rgba(30,42,56,.55);display:grid;place-items:center;padding:20px;z-index:10}
+.overlay[hidden]{display:none}
+.dialog{background:#fff;border-radius:28px;padding:32px 24px 24px;width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.dialog h2{margin:0;font-size:26px;font-weight:800;color:var(--navy)}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:430px;margin:0 auto;background:#fff;border-radius:28px 28px 0 0;padding:24px 20px calc(env(safe-area-inset-bottom,0px) + 20px);z-index:11;display:flex;flex-direction:column;gap:12px;box-shadow:0 -10px 40px rgba(0,0,0,.2)}
+.sheet[hidden]{display:none}
+.sheet h2{margin:0;font-size:20px;color:var(--navy)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{background:var(--bg);border-radius:10px;padding:8px 12px;font-weight:600;font-size:14px}
+.cmd{display:flex;gap:8px}
+.cmd input{flex:1;min-width:0;border:2px solid var(--line);border-radius:12px;padding:10px;font:600 15px ui-monospace,Menlo,monospace}
+.log{background:var(--bg);border-radius:12px;padding:10px;height:110px;overflow:auto;font:12px ui-monospace,Menlo,monospace;color:var(--mut)}
+.log .tx{color:var(--navy)} .log .rx{color:var(--ink)}
+.toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;z-index:20;max-width:90%;text-align:center}
+.toast[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="phone" id="app">
+
+  <!-- 0 · START -->
+  <section class="scr" id="s-start">
+    <div class="head"><span id="av0"></span><h1>Hoi! Wat doen we?</h1></div>
+    <button class="big" style="background:var(--grn)" id="b-opruimen" aria-label="Opruimen">
+      <svg width="56" height="80" viewBox="0 0 56 80" fill="none" aria-hidden="true"><line x1="46" y1="4" x2="24" y2="48" stroke="#fff" stroke-width="7" stroke-linecap="round"/><path d="M8 50 L40 50 L46 78 L2 78 Z" fill="#fff"/><line x1="14" y1="56" x2="12" y2="74" stroke="#00852B" stroke-width="3"/><line x1="24" y1="56" x2="24" y2="74" stroke="#00852B" stroke-width="3"/><line x1="34" y1="56" x2="36" y2="74" stroke="#00852B" stroke-width="3"/></svg>
+      <div><b>Opruimen</b><span>Bittle sorteert alles</span></div>
+    </button>
+    <button class="big" style="background:var(--blu)" id="b-klaarleggen" aria-label="Klaarleggen">
+      <div class="tower" id="startTower"></div>
+      <div><b>Klaarleggen</b><span>Bittle haalt je blokjes</span></div>
+    </button>
+    <button class="card status" id="b-status" aria-label="Verbinding met Bittle">
+      <span class="dot demo" id="dot"></span><span style="font-weight:600;font-size:16px" id="statusTxt">Demo-modus</span>
+      <span class="grow"></span><span class="muted" style="font-weight:600;font-size:14px">instellingen ›</span>
+    </button>
+    <button class="card status" id="b-voice" aria-pressed="true">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M3 9 h6 l8 -6 v20 l-8 -6 h-6 z" fill="#0B2D5B"/><path d="M20 8 q4 5 0 10" stroke="#0B2D5B" stroke-width="2.5" stroke-linecap="round" id="wave"/></svg>
+      <span style="font-weight:600;font-size:16px" id="voiceTxt">Bittle zegt alles ook luidop</span>
+    </button>
+  </section>
+
+  <!-- A1 / B3 · BEZIG (één scherm, twee modi) -->
+  <section class="scr" id="s-bezig" hidden>
+    <div class="head"><span id="av1"></span><h1 id="bezigTitel">Bittle ruimt op</h1></div>
+    <div class="steps" id="steps"></div>
+    <div class="card now-card" id="nowCard">
+      <div id="nowBrick"></div>
+      <h2 id="nowTxt">Ik zoek een blokje…</h2>
+    </div>
+    <div class="card" id="bakjeCard">
+      <div class="lbl">BAKJE OP MIJN RUG</div>
+      <div class="vakken" id="vakken"></div>
+    </div>
+    <div class="card" id="torenCard" hidden>
+      <div class="lbl" id="torenLbl">JE TORENTJE</div>
+      <div class="row"><div class="tower" id="progTower"></div><div><div style="font-weight:700;font-size:16px" id="torenA"></div><div class="muted" style="font-weight:600;font-size:14px" id="torenB"></div></div></div>
+    </div>
+    <div class="card status">
+      <svg width="28" height="32" viewBox="0 0 28 32" fill="#0B2D5B" aria-hidden="true"><rect x="7" y="2" width="5" height="18" rx="2.5"/><rect x="13" y="0" width="5" height="20" rx="2.5"/><rect x="19" y="2" width="5" height="18" rx="2.5"/><rect x="1" y="10" width="5" height="12" rx="2.5"/><rect x="2" y="16" width="22" height="15" rx="7"/></svg>
+      <span style="font-weight:700;font-size:16px">Hand boven Bittle = pauze</span>
+    </div>
+    <span class="grow"></span>
+    <button class="btn stop" id="b-stop">■&nbsp; Stop</button>
+  </section>
+
+  <!-- A3 / B5 · KLAAR -->
+  <section class="scr center" id="s-klaar" hidden>
+    <div style="margin-top:20px" class="bounce" id="av2"></div>
+    <h1 style="margin:0;font-size:30px;font-weight:800;color:var(--navy)" id="klaarTitel">Alles opgeruimd!</h1>
+    <div class="stars" aria-label="3 sterren">★★★</div>
+    <div class="card" style="width:100%;text-align:left">
+      <div class="lbl" id="klaarLbl">ZOVEEL HEEFT BITTLE GESORTEERD</div>
+      <div class="teller" id="teller"></div>
+      <div id="klaarTip" style="font-weight:600;font-size:15px;color:var(--navy)" hidden>Stapel ze van 1 naar 4, dan staat je torentje!</div>
+    </div>
+    <div class="card" style="width:100%;font-weight:700;font-size:17px;color:var(--navy)">♪&nbsp; Bittle doet een dansje &nbsp;♪</div>
+    <span class="grow"></span>
+    <button class="btn go" id="b-again">↻&nbsp; Nog een keer</button>
+    <button class="btn sec" id="b-home">Naar start</button>
+  </section>
+
+  <!-- B1 · KIES BOUWOPDRACHT -->
+  <section class="scr" id="s-kies" hidden>
+    <div class="head"><button class="back" data-go="start" aria-label="Terug"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M13 3 L6 10 L13 17" stroke="#0B2D5B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h1>Wat bouw je?</h1></div>
+    <div class="muted" style="font-weight:500;font-size:16px">Kies een bouwopdracht. Bittle legt de blokjes in de juiste volgorde voor je klaar.</div>
+    <div class="grid2" id="presets"></div>
+    <div class="card status" id="samenvatting"><div class="tower" id="sumTower"></div><div><div style="font-weight:700" id="sumA"></div><div class="muted" style="font-weight:600;font-size:14px" id="sumB"></div></div></div>
+    <span class="grow"></span>
+    <button class="btn go" id="b-legklaar">Bittle, leg klaar!</button>
+  </section>
+
+  <!-- B2 · ZELF MAKEN -->
+  <section class="scr" id="s-zelf" hidden>
+    <div class="head"><button class="back" data-go="kies" aria-label="Terug"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M13 3 L6 10 L13 17" stroke="#0B2D5B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h1>Maak je torentje</h1></div>
+    <div class="card build"><div class="lbl" id="lagen">0 lagen</div><div class="tower" id="zelfTower"></div></div>
+    <div class="muted" style="font-weight:600;font-size:15px">Tik op een kleur om een laag toe te voegen (max. 6)</div>
+    <div class="kleuren" id="kleuren"></div>
+    <button class="btn sec" id="b-undo">↶&nbsp; Bovenste laag weghalen</button>
+    <span class="grow"></span>
+    <button class="btn go" id="b-zelfklaar" disabled>Klaar! Bittle haalt ze</button>
+  </section>
+</div>
+
+<!-- A2 / B4 · PAUZE -->
+<div class="overlay" id="pauze" hidden>
+  <div class="dialog" role="dialog" aria-label="Pauze">
+    <svg width="96" height="96" viewBox="0 0 96 96" fill="none" aria-hidden="true"><circle cx="48" cy="48" r="48" fill="#EEF2F5"/><rect x="32" y="28" width="12" height="40" rx="4" fill="#0B2D5B"/><rect x="52" y="28" width="12" height="40" rx="4" fill="#0B2D5B"/></svg>
+    <h2>Bittle wacht even</h2>
+    <div class="muted" style="font-weight:500">Hij zit stil tot je verder tikt.</div>
+    <button class="btn go" id="b-verder">▶&nbsp; Verder</button>
+    <button class="btn stop" id="b-stoppen">Helemaal stoppen</button>
+  </div>
+</div>
+
+<!-- INSTELLINGEN (voor ouder / softwareteam) -->
+<div class="overlay" id="sheetBg" hidden></div>
+<div class="sheet" id="sheet" hidden role="dialog" aria-label="Instellingen">
+  <h2>Verbinding met Bittle</h2>
+  <button class="btn go" id="b-ble">Verbind via Bluetooth</button>
+  <button class="btn sec" id="b-usb">Verbind via USB-kabel</button>
+  <button class="btn sec" id="b-demo">Demo-modus (zonder robot)</button>
+  <div class="lbl" style="margin-top:6px">TEST-COMMANDO'S (SOFTWARETEAM)</div>
+  <div class="chips" id="chips"></div>
+  <form class="cmd" id="cmdForm"><input id="cmdIn" placeholder="eigen commando, bv. kbalance" autocomplete="off" aria-label="Commando"><button class="btn go" style="width:90px;height:auto" type="submit">Stuur</button></form>
+  <div class="log" id="log" aria-live="off"></div>
+  <button class="btn sec" id="b-sheetClose">Sluiten</button>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   Bittle LEGO-sorter · kinderapp
+   - Schermen en teksten volgen het Figma-ontwerp (UX/UI-team).
+   - Praat met Bittle via korte tekstregels (zie README in "UI - UX").
+     app → Bittle : opruimen | klaarleg rood wit rood wit | pauze | verder | stop
+     Bittle → app : stap zoeken|naderen|grijpen|brengen|lossen|neerleggen
+                    kleur rood | bakje 2 1 0 | gemist | laag 2 4 | klaar 5 3 4 2
+   - Zonder robot draait een demo-Bittle die exact dezelfde regels stuurt.
+   ===================================================================== */
+const $=id=>document.getElementById(id);
+const COL={rood:"#D01012",wit:"#FFFFFF",groen:"#00852B",blauw:"#0A57A6"};
+const KLEUREN=["rood","wit","groen","blauw"];
+const PRESETS=[
+  {id:"torentje",naam:"Torentje",plan:["rood","wit","rood","wit"]},
+  {id:"autootje",naam:"Autootje",plan:["blauw","blauw","wit"]},
+  {id:"brug",naam:"Brug",plan:["groen","groen","groen","groen","blauw"]},
+];
+const UART="6e400001-b5a3-f393-e0a9-e50e24dcca9e", UART_RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e", UART_TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+
+/* ---------- tekenen ---------- */
+function brick(c,w=48){const h=Math.round(w*.75),st=c==="wit"?' stroke="#C5CED6" stroke-width="2"':'',f=COL[c]||c;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 48 36" aria-label="${c} blokje" role="img"><rect x="6" y="1" width="12" height="9" rx="2" fill="${f}"${st}/><rect x="30" y="1" width="12" height="9" rx="2" fill="${f}"${st}/><rect x="1" y="6" width="46" height="29" rx="6" fill="${f}"${st}/></svg>`;}
+function tower(el,cols,w,ghostFrom=99){el.innerHTML=cols.map((c,i)=>`<div style="opacity:${i>=ghostFrom?.25:1}">${brick(c,w)}</div>`).join("");}
+const avatar=(s=44)=>`<svg width="${s}" height="${s}" viewBox="0 0 44 44" aria-label="Bittle" role="img"><ellipse cx="10" cy="10" rx="6" ry="10" fill="#0B2D5B" stroke="#fff" stroke-width="2"/><ellipse cx="34" cy="10" rx="6" ry="10" fill="#0B2D5B" stroke="#fff" stroke-width="2"/><circle cx="22" cy="24" r="20" fill="#0B2D5B"/><circle cx="16" cy="21" r="3" fill="#fff"/><circle cx="28" cy="21" r="3" fill="#fff"/><ellipse cx="22" cy="32.5" rx="5" ry="3.5" fill="#fff"/></svg>`;
+$("av0").innerHTML=avatar(); $("av1").innerHTML=avatar(); $("av2").innerHTML=avatar(96);
+tower($("startTower"),["rood","wit","groen"],44);
+
+/* ---------- navigatie ---------- */
+const SCR=["start","bezig","klaar","kies","zelf"];
+function show(n){SCR.forEach(s=>$("s-"+s).hidden=s!==n); window.scrollTo(0,0);}
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>show(b.dataset.go));
+
+/* ---------- spraak ---------- */
+let voice=true; try{voice=localStorage.getItem("bittle.voice")!=="0";}catch(e){}
+function renderVoice(){$("voiceTxt").textContent=voice?"Bittle zegt alles ook luidop":"Bittle praat niet (tik om aan te zetten)"; $("wave").style.opacity=voice?1:.2; $("b-voice").setAttribute("aria-pressed",voice);}
+$("b-voice").onclick=()=>{voice=!voice; try{localStorage.setItem("bittle.voice",voice?"1":"0")}catch(e){} renderVoice(); if(voice)say("Hallo! Ik ben Bittle.");};
+function say(t){ if(!voice||!("speechSynthesis" in window)) return; try{speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang="nl-BE"; u.rate=1.05; u.pitch=1.3; speechSynthesis.speak(u);}catch(e){} }
+renderVoice();
+
+/* ---------- log + toast ---------- */
+function log(t,cls){const d=document.createElement("div"); d.className=cls||""; d.textContent=(cls==="tx"?"→ ":cls==="rx"?"← ":"")+t; const L=$("log"); L.appendChild(d); while(L.children.length>200)L.firstChild.remove(); L.scrollTop=L.scrollHeight;}
+let toastT; function toast(t){const e=$("toast"); e.textContent=t; e.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>e.hidden=true,2600);}
+
+/* ---------- verbinding ---------- */
+const link={mode:"demo",send:null,close:null};
+function setStatus(mode,label){link.mode=mode; $("dot").className="dot "+(mode==="demo"?"demo":mode==="off"?"off":""); $("statusTxt").textContent=label;}
+async function send(cmd){log(cmd,"tx"); try{await link.send(cmd);}catch(e){log("Versturen mislukt: "+e.message); toast("Bittle hoort me niet. Kijk de verbinding na.");}}
+let buf=""; function onChunk(t){buf+=t; let i; while((i=buf.indexOf("\n"))>=0){const l=buf.slice(0,i).replace(/\r$/,"").trim(); buf=buf.slice(i+1); if(l) onLine(l);}}
+async function closeLink(){ if(link.close){const f=link.close; link.close=null; try{await f();}catch(e){}} }
+async function connectBle(){
+  if(!("bluetooth" in navigator)) return toast("Bluetooth werkt hier niet. Gebruik Chrome of Edge.");
+  try{
+    const dev=await navigator.bluetooth.requestDevice({filters:[{services:[UART]},{namePrefix:"Bittle"},{namePrefix:"Petoi"}],optionalServices:[UART]});
+    const svc=await (await dev.gatt.connect()).getPrimaryService(UART);
+    const rx=await svc.getCharacteristic(UART_RX), tx=await svc.getCharacteristic(UART_TX);
+    await closeLink(); demo.stop();
+    const enc=new TextEncoder(), dec=new TextDecoder();
+    await tx.startNotifications(); tx.addEventListener("characteristicvaluechanged",ev=>onChunk(dec.decode(ev.target.value)+"\n"));
+    link.send=async c=>{const b=enc.encode(c+"\n"); for(let i=0;i<b.length;i+=20) await rx.writeValueWithResponse(b.slice(i,i+20));};
+    link.close=async()=>dev.gatt.disconnect();
+    dev.addEventListener("gattserverdisconnected",()=>{ if(link.mode==="ble"){toast("Verbinding met Bittle kwijt"); startDemo();} });
+    setStatus("ble","Bittle is verbonden"); toast("Verbonden met "+(dev.name||"Bittle")); log("Bluetooth: "+(dev.name||"Bittle"));
+  }catch(e){ if(e.name!=="NotFoundError"){toast("Verbinden lukte niet"); log(e.message);} }
+}
+async function connectUsb(){
+  if(!("serial" in navigator)) return toast("USB werkt hier niet. Gebruik Chrome of Edge op een computer.");
+  try{
+    const port=await navigator.serial.requestPort(); await port.open({baudRate:115200});
+    await closeLink(); demo.stop();
+    const w=port.writable.getWriter(), enc=new TextEncoder(), dec=new TextDecoder(); let reader, alive=true;
+    link.send=async c=>w.write(enc.encode(c+"\n"));
+    link.close=async()=>{alive=false; try{await reader.cancel()}catch(e){} try{w.releaseLock()}catch(e){} try{await port.close()}catch(e){}};
+    setStatus("usb","Bittle is verbonden (USB)"); toast("Verbonden via USB"); log("USB: 115200 baud");
+    (async()=>{while(alive&&port.readable){reader=port.readable.getReader(); try{for(;;){const {value,done}=await reader.read(); if(done)break; onChunk(dec.decode(value,{stream:true}));}}catch(e){} finally{try{reader.releaseLock()}catch(e){}}}})();
+  }catch(e){ if(e.name!=="NotFoundError"){toast("Verbinden lukte niet"); log(e.message);} }
+}
+function startDemo(){closeLink(); link.send=async c=>demo.handle(c); setStatus("demo","Demo-modus"); log("Demo-modus: een nep-Bittle speelt mee");}
+
+/* ---------- demo-Bittle: stuurt dezelfde regels als de echte ---------- */
+const demo={timers:[],paused:false,queue:[],
+  stop(){this.timers.forEach(clearTimeout); this.timers=[]; this.queue=[]; this.paused=false;},
+  emit(lines){ // lines: [[delayMs,"tekst"],...]
+    this.queue=lines.slice(); this.next();},
+  next(){ if(this.paused||!this.queue.length) return; const [d,l]=this.queue.shift(); this.timers.push(setTimeout(()=>{ if(this.paused){this.queue.unshift([0,l]);return;} log(l,"rx"); onLine(l); this.next(); },d));},
+  handle(c){
+    const w=c.trim().split(/\s+/);
+    if(w[0]==="opruimen"){this.stop(); this.emit(this.scriptOpruimen());}
+    else if(w[0]==="klaarleg"){this.stop(); this.emit(this.scriptKlaarleg(w.slice(1)));}
+    else if(w[0]==="pauze"){this.paused=true; this.timers.forEach(clearTimeout); this.timers=[];}
+    else if(w[0]==="verder"){this.paused=false; this.next();}
+    else if(w[0]==="stop"||w[0]==="d"){this.stop();}
+    else log("(demo) "+c+" ontvangen");
+  },
+  scriptOpruimen(){const n=8, L=[], tel={rood:0,wit:0,groen:0,blauw:0}; let bak=[];
+    for(let i=0;i<n;i++){const k=KLEUREN[Math.floor(Math.random()*4)];
+      L.push([700,"stap zoeken"],[1100,"stap naderen"],[300,"kleur "+k],[900,"stap grijpen"]);
+      if(Math.random()<.15) L.push([900,"gemist"],[1000,"stap grijpen"]);
+      bak.push(k); L.push([800,"bakje "+bakStr(bak)]);
+      if(bak.length===3||i===n-1){L.push([700,"stap brengen"],[1300,"stap lossen"]); bak.forEach(b=>tel[b]++); bak=[]; L.push([700,"bakje leeg"]);}
+    }
+    L.push([600,"klaar "+KLEUREN.map(k=>tel[k]).join(" ")]); return L;},
+  scriptKlaarleg(plan){const L=[]; plan.forEach((k,i)=>{L.push([700,"stap zoeken"],[300,"kleur "+k],[1000,"stap naderen"],[900,"stap grijpen"],[1000,"stap brengen"],[900,"stap neerleggen"],[500,`laag ${i+1} ${plan.length}`]);}); L.push([600,"klaar"]); return L;}
+};
+function bakStr(b){const v=[0,0,0]; b.forEach((_,i)=>v[i]=1); return b.length?b.join(","):"0 0 0";}
+
+/* ---------- toestand van de app ---------- */
+const st={mode:"opruimen",stap:null,kleur:null,bak:[],plan:[],laag:0,running:false,preset:"torentje",zelf:[]};
+const STAPPEN={opruimen:["zoeken","naderen","grijpen","brengen","lossen"],klaarleggen:["zoeken","naderen","grijpen","brengen","neerleggen"]};
+const ZIN={zoeken:"Ik zoek een blokje…",naderen:"Ik loop ernaartoe…",grijpen:k=>`Ik pak een ${k||""} blokje!`,brengen:"Ik breng ze naar hun vakje",lossen:"Hop, in het vakje!",neerleggen:"Ik leg het voor je klaar"};
+function renderSteps(){const list=STAPPEN[st.mode], idx=list.indexOf(st.stap);
+  $("steps").innerHTML=list.map((s,i)=>`<div class="step ${i<idx?"done":i===idx?"now":""}"><i>${i<idx?"✓":i+1}</i>${s}</div>`).join("");}
+function renderNow(){const z=ZIN[st.stap]; let t=typeof z==="function"?z(st.kleur):(z||"Ik zoek een blokje…");
+  if(st.mode==="klaarleggen"&&st.stap==="zoeken"&&st.kleur) t=`Ik zoek een ${st.kleur} blokje…`;
+  $("nowTxt").textContent=t;
+  $("nowBrick").innerHTML=st.kleur&&st.stap!=="zoeken"?brick(st.kleur,120):`<svg width="120" height="90" viewBox="0 0 120 90" aria-hidden="true"><circle cx="50" cy="40" r="28" fill="none" stroke="#0B2D5B" stroke-width="8"/><line x1="70" y1="60" x2="100" y2="86" stroke="#0B2D5B" stroke-width="10" stroke-linecap="round"/></svg>`;}
+function renderBak(){$("vakken").innerHTML=[0,1,2].map(i=>`<div class="vak">${st.bak[i]?brick(st.bak[i],34):""}</div>`).join("");}
+function renderToren(){const n=st.plan.length; tower($("progTower"),st.plan,40,st.laag);
+  $("torenLbl").textContent=`JE TORENTJE · LAAG ${Math.min(st.laag+1,n)} VAN ${n}`;
+  $("torenA").textContent=`${st.laag} ${st.laag===1?"blokje ligt":"blokjes liggen"} klaar`; $("torenB").textContent=n-st.laag?`Nog ${n-st.laag} te gaan`:"Alles ligt klaar!";}
+function startRun(mode,plan){
+  st.mode=mode; st.stap="zoeken"; st.kleur=mode==="klaarleggen"?plan[0]:null; st.bak=[]; st.plan=plan||[]; st.laag=0; st.running=true;
+  $("bezigTitel").textContent=mode==="opruimen"?"Bittle ruimt op":"Bittle legt klaar";
+  $("bakjeCard").hidden=mode!=="opruimen"; $("torenCard").hidden=mode!=="klaarleggen";
+  renderSteps(); renderNow(); renderBak(); if(mode==="klaarleggen") renderToren();
+  show("bezig");
+  send(mode==="opruimen"?"opruimen":"klaarleg "+plan.join(" "));
+  say(mode==="opruimen"?"Oké, ik ga opruimen!":"Oké, ik haal je blokjes!");
+}
+function onLine(line){
+  const w=line.trim().split(/\s+/), k=w[0].toLowerCase();
+  if(!st.running) return;
+  if(k==="stap"&&w[1]){ st.stap=w[1]; renderSteps(); renderNow(); if(w[1]==="grijpen"&&st.kleur) say(`Ik pak een ${st.kleur} blokje`); }
+  else if(k==="kleur"&&w[1]){ st.kleur=w[1]; renderNow(); }
+  else if(k==="bakje"){ const v=w.slice(1).join(" "); st.bak= v.includes(",")||KLEUREN.includes(w[1]) ? v.split(/[ ,]+/).filter(x=>KLEUREN.includes(x)) : []; renderBak(); }
+  else if(k==="gemist"){ $("nowTxt").textContent="Oei, gemist! Ik probeer opnieuw"; say("Oei, gemist! Ik probeer opnieuw."); }
+  else if(k==="laag"){ st.laag=parseInt(w[1])||st.laag+1; if(st.laag<st.plan.length) st.kleur=st.plan[st.laag]; renderToren(); }
+  else if(k==="klaar"){ finish(w.slice(1).map(Number)); }
+}
+function finish(counts){
+  st.running=false;
+  if(st.mode==="opruimen"){
+    $("klaarTitel").textContent="Alles opgeruimd!"; $("klaarLbl").textContent="ZOVEEL HEEFT BITTLE GESORTEERD"; $("klaarTip").hidden=true;
+    $("teller").innerHTML=KLEUREN.map((c,i)=>`<div>${brick(c,52)}<span>${counts[i]||0}</span></div>`).join("");
+    $("b-again").innerHTML="↻&nbsp; Nog een keer"; say("Alles opgeruimd! Kijk mij eens dansen.");
+  } else {
+    $("klaarTitel").textContent="Je blokjes liggen klaar!"; $("klaarLbl").textContent="BOUW NU JE TORENTJE"; $("klaarTip").hidden=false;
+    $("teller").innerHTML=st.plan.map((c,i)=>`<div>${brick(c,52)}<span style="font-size:22px">${i+1}</span></div>`).join("");
+    $("b-again").innerHTML="+&nbsp; Nog een bouwopdracht"; say("Je blokjes liggen klaar. Veel bouwplezier!");
+  }
+  show("klaar");
+}
+
+/* ---------- knoppen ---------- */
+$("b-opruimen").onclick=()=>startRun("opruimen");
+$("b-klaarleggen").onclick=()=>{renderPresets(); show("kies");};
+$("b-stop").onclick=()=>{ send("pauze"); $("pauze").hidden=false; say("Ik wacht even."); };
+$("b-verder").onclick=()=>{ $("pauze").hidden=true; send("verder"); };
+$("b-stoppen").onclick=()=>{ $("pauze").hidden=true; st.running=false; send("stop"); show("start"); };
+$("b-again").onclick=()=> st.mode==="opruimen"?startRun("opruimen"):(renderPresets(),show("kies"));
+$("b-home").onclick=()=>show("start");
+
+/* B1 presets */
+function currentPlan(){ return st.preset==="zelf"?st.zelf:PRESETS.find(p=>p.id===st.preset).plan; }
+function renderPresets(){
+  const icon={torentje:()=>`<div class="tower">${["rood","wit","rood","wit"].map(c=>brick(c,48)).join("")}</div>`.replace('class="tower">','class="tower" style="flex-direction:column-reverse">'),
+    autootje:()=>`<svg width="110" height="84" viewBox="0 0 110 84" aria-hidden="true"><rect x="0" y="30" width="110" height="34" rx="8" fill="#0A57A6"/><rect x="24" y="4" width="60" height="30" rx="7" fill="#fff" stroke="#C5CED6" stroke-width="2"/><circle cx="28" cy="68" r="14" fill="#1E2A38"/><circle cx="84" cy="68" r="14" fill="#1E2A38"/></svg>`,
+    brug:()=>`<svg width="120" height="84" viewBox="0 0 120 84" aria-hidden="true"><rect x="0" y="10" width="120" height="22" rx="5" fill="#0A57A6"/><rect x="8" y="36" width="34" height="22" rx="4" fill="#00852B"/><rect x="8" y="62" width="34" height="22" rx="4" fill="#00852B"/><rect x="78" y="36" width="34" height="22" rx="4" fill="#00852B"/><rect x="78" y="62" width="34" height="22" rx="4" fill="#00852B"/></svg>`};
+  $("presets").innerHTML=PRESETS.map(p=>`<button class="preset ${st.preset===p.id?"on":""}" data-p="${p.id}" aria-pressed="${st.preset===p.id}">${icon[p.id]()}${p.naam}</button>`).join("")+
+    `<button class="preset zelf ${st.preset==="zelf"?"on":""}" data-p="zelf"><svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#fff"/><path d="M32 18 v28 M18 32 h28" stroke="#0B2D5B" stroke-width="5" stroke-linecap="round"/></svg>${st.zelf.length?"Mijn torentje":"Zelf maken"}</button>`;
+  document.querySelectorAll("#presets .preset").forEach(b=>b.onclick=()=>{ if(b.dataset.p==="zelf"){renderZelf(); show("zelf"); return;} st.preset=b.dataset.p; renderPresets(); });
+  const plan=currentPlan(); tower($("sumTower"),plan,22);
+  const naam=st.preset==="zelf"?"Mijn torentje":PRESETS.find(p=>p.id===st.preset).naam;
+  $("sumA").textContent=`${naam} · ${plan.length} blokjes`;
+  $("sumB").textContent=KLEUREN.map(k=>[k,plan.filter(x=>x===k).length]).filter(x=>x[1]).map(([k,n])=>`${n} ${k}`).join(" · ");
+  $("b-legklaar").disabled=!plan.length;
+}
+$("b-legklaar").onclick=()=>startRun("klaarleggen",currentPlan().slice());
+
+/* B2 zelf maken */
+$("kleuren").innerHTML=KLEUREN.map(k=>`<button class="kleur" data-k="${k}" aria-label="Laag ${k} toevoegen">${brick(k,48)}</button>`).join("");
+document.querySelectorAll(".kleur").forEach(b=>b.onclick=()=>{ if(st.zelf.length<6){st.zelf.push(b.dataset.k); renderZelf();} else toast("Je torentje is al 6 lagen hoog!"); });
+$("b-undo").onclick=()=>{st.zelf.pop(); renderZelf();};
+function renderZelf(){tower($("zelfTower"),st.zelf,78); $("lagen").textContent=st.zelf.length+(st.zelf.length===1?" laag":" lagen"); $("b-zelfklaar").disabled=!st.zelf.length;}
+$("b-zelfklaar").onclick=()=>{st.preset="zelf"; startRun("klaarleggen",st.zelf.slice());};
+
+/* instellingen + test-commando's */
+const openSheet=o=>{$("sheet").hidden=!o; $("sheetBg").hidden=!o;};
+$("b-status").onclick=()=>openSheet(true); $("b-sheetClose").onclick=()=>openSheet(false); $("sheetBg").onclick=()=>openSheet(false);
+$("b-ble").onclick=connectBle; $("b-usb").onclick=connectUsb; $("b-demo").onclick=()=>{startDemo(); toast("Demo-modus aan");};
+[["kbalance","rechtop"],["ksit","zit"],["khi","hallo"],["kwkF","wandel"],["kvtL","draai links"],["kpickF","grijp"],["kputF","neerleggen"],["d","rust"]].forEach(([c,n])=>{const b=document.createElement("button"); b.textContent=`${n} · ${c}`; b.onclick=()=>send(c); $("chips").appendChild(b);});
+$("cmdForm").addEventListener("submit",e=>{e.preventDefault(); const v=$("cmdIn").value.trim(); if(v){send(v); $("cmdIn").value="";}});
+
+startDemo(); renderBak();
+</script>
+</body>
+</html>
